@@ -11,13 +11,22 @@ DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
 
 
 def get_connection():
-    return psycopg2.connect(
-        host=DB_HOST,
-        database=DB_NAME,
-        user=DB_USER,
-        password=DB_PASSWORD
-    )
+    for i in range(10):
+        try:
+            conn = psycopg2.connect(
+                host="postgres-db",
+                database="microservice_db",
+                user="postgres",
+                password="postgres"
+            )
+            print("Database connected successfully")
+            return conn
 
+        except psycopg2.OperationalError as e:
+            print(f"Database not ready... retrying ({i+1}/10)")
+            time.sleep(5)
+
+    raise Exception("Database connection failed after retries")
 
 def init_db():
     conn = get_connection()
