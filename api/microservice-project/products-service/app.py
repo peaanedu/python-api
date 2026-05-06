@@ -1,10 +1,12 @@
 from flask import Flask, jsonify, request
 import psycopg2
 import os
+import time
 
 app = Flask(__name__)
 
 DB_HOST = os.getenv("DB_HOST", "postgres")
+DB_PORT = os.getenv("DB_PORT", "5432")
 DB_NAME = os.getenv("DB_NAME", "products_db")
 DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
@@ -14,16 +16,17 @@ def get_connection():
     for i in range(10):
         try:
             conn = psycopg2.connect(
-                host="postgres-db",
-                database="microservice_db",
-                user="postgres",
-                password="postgres"
+                host=DB_HOST,
+                port=DB_PORT,
+                database=DB_NAME,
+                user=DB_USER,
+                password=DB_PASSWORD
             )
             print("Database connected successfully")
             return conn
 
         except psycopg2.OperationalError as e:
-            print(f"Database not ready... retrying ({i+1}/10)")
+            print(f"Database not ready... retrying ({i+1}/10): {e}")
             time.sleep(5)
 
     raise Exception("Database connection failed after retries")
